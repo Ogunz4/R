@@ -1,0 +1,160 @@
+---
+title: "Lab 9: Multivariate Regression"
+author: "Mamudat Jaji"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(GGally)
+library(broom)
+
+suppressWarnings(library(StMoSim))
+
+data(evals)
+glimpse(evals)
+
+?evals
+```
+
+### Exercise 11
+Which variable would you expect to have the highest p value in this model Why Hint Think about which variable would you expect to not have any association with the professor score
+
+### Answer
+
+I will think that class level: lower, upper cls_level to be the variable with the least association with the professors evaluation score. We believe that class level has no bearing on professor score because professor score is unaffected by class level. We believe that every student, regardless of level, is more concerned with the quality of the professor.
+
+```{r}
+m_full <- lm(score ~ rank + gender + ethnicity + language + age + cls_perc_eval 
+             + cls_students + cls_level + cls_profs + cls_credits + bty_avg, data = evals)
+tidy(m_full)
+summary(m_full)
+
+m_full2 <- lm(score ~ rank + gender + ethnicity + language + age + cls_perc_eval 
+             + cls_students + cls_level + cls_credits + bty_avg, data = evals)
+tidy(m_full2)
+
+summary(m_full2)
+
+```
+
+
+### Exercise 12
+
+Check your suspicions from the previous exercise. Include the model output in your response.
+
+### Answer
+
+My suspicions were not right, the one with highest p-value is cls_profssingle(8.674581e-01) while my own suspicion was cls_levelupper(7.365603e-01)
+
+```{r}
+```
+
+### Exercise 13
+
+Interpret the coefficient associated with the ethnicity variable.
+
+### Answer
+ethnicitynot minority coefficient is 0.1869649363. This parameter estimate is multiplied by 1 in the equation of the line. All else held constant, not minority will be approximately 0.19 more than ethnicity.
+
+```{r}
+```
+
+
+### Exercise 14
+
+Drop one variable at a time and peek at the adjusted R2. Removing which variable increases adjusted R2 the most? Drop the variable with the highest p-value and re-fit the model. Did the coefficients and significance of the other explanatory variables change with this variable removed? (One of the things that makes multiple regression interesting is that coefficient estimates depend on the other variables that are included in the model.) If not, what does this say about whether or not the dropped variable was colinear with the other explanatory variables?
+
+### Answer
+
+After dropping cls_profs, the coefficients and significance of the other explanatory variables changed a little bit for example cls_levelupper had an estimate of	0.0187104644	and significance	7.365603e-01 but when the highest p-value dropped it changed to 0.0183743453	and significance of	7.406873e-01.
+
+```{r}
+# dropping the cls_profssingle variable
+
+m_full2 <- lm(score ~ rank + gender + ethnicity + language + age + cls_perc_eval 
+             + cls_students + cls_level + cls_credits + bty_avg, data = evals)
+tidy(m_full2)
+
+summary(m_full2)
+```
+
+
+### Exercise 15
+
+Using backward-selection and adjusted R2 as the selection criterion, determine the best model. You do not need to show all steps in your answer, just the output for the final model. Also, write out the linear model for predicting score based on the final model you settle on.
+
+### Answer 
+Score estimate = 3.53 + 0.18(gendermale) + 0.19(ethnicitynotminority) - 0.13(languagenon−english) - 0.0066(age) + 0.0057(clsperceval) + 0.51(clscreditsonecredit) + 0.061(bty_avg)
+
+```{r}
+
+m_full <- lm(score ~ gender + ethnicity + language + age + cls_perc_eval + cls_credits + bty_avg, data = evals)
+
+summary(m_full)
+```
+
+
+### Exercise 16
+
+Verify that the conditions for this model are reasonable using diagnostic plots.
+
+### Answer
+
+Looking at the Normal Q-Q plots the residuals of the model appears nearly normal. There are not much outliers but the tails are a bit off the line. 
+
+Looking at the residuals vs fitted plots, the variability is constant.
+
+Looking at the scale-location plot, the residuals are equally spread along the ranges of predictors. 
+
+Each variable is linearly related to the outcome: based on the Residuals vs Fitted plot, there is no distinct patterns, so we are tempted to say we don’t have non-linear relationship, however, the spread in the residuals is not equally distributed around the horizontal line. It looks like we have a “V” form.
+
+```{r}
+#hist(m_full$residuals, prob = TRUE, breaks = 11,  main = "m_full-residuals", xlab = "Residual")
+#lines(density(m_full$residuals, adjust = 1.8), col = "Red", lwd = 2)
+
+#plot(m_full)
+plot(m_full, which = 1, col = c("red"))
+
+plot(m_full, which = 2, col = c("blue"))
+
+plot(m_full, which = 3, col = c("yellow"))
+```
+
+
+### Exercise 17
+
+The original paper describes how these data were gathered by taking a sample of professors from the University of Texas at Austin and including all courses that they have taught. Considering that each row represents a course, could this new information have an impact on any of the conditions of linear regression?
+
+### Answer
+
+Actually it depends, if each row represents a course, we would like to know if students take one or numerous courses, and if instructors teach multiple classes. The presumption is that a student who just takes one course with the same professor will have a different opinion than a student who takes two courses with the same professor. It is difficult to have the same level of goodness on two separate subjects.
+
+```{r}
+```
+
+### Exercise 18
+
+Based on your final model, describe the characteristics of a professor and course at University of Texas at Austin that would be associated with a high evaluation score.
+
+### Answer
+
+Students prefer male teachers who are not from a minority group, speak English, teach one credit, and have a color image.
+
+```{r}
+
+```
+
+### Exercise 19
+
+Would you be comfortable generalizing your conclusions to apply to professors generally at any university? Why or why not?
+
+### Answer
+
+No, we would not feel safe applying our findings to all instructors at any university. The assumption contains a bias. If these findings were applied across the board, kids would be roughly the same. How students value a teacher, on the other hand, is more of a sociology/psychology issue than a scientific law. Students who attend school in a region with a high graduation and retention rate, for example, will receive different feedback than those who attend school in a location with a low graduation and retention rate.
+
+```{r}
+
+```

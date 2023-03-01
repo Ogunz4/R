@@ -1,0 +1,322 @@
+---
+title: "Lab 1: Intro to R"
+author: "Mamudat Jaji"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+head(fastfood)
+
+mcdonalds <- fastfood %>%
+  filter(restaurant == "Mcdonalds")
+dairy_queen <- fastfood %>%
+  filter(restaurant == "Dairy Queen")
+```
+
+### Exercise 1
+
+In comparison to the dairy queen histogram, the Mcdonalds histogram has a stronger right skew. The dairy queen histogram falls somewhat towards the middle, while the McDonalds cal fat data has a center that is further to the left. The McDonald's data has a wider range, with a maximum of 1200-1400, but the dairy queen data has a maximum of 600-700.
+
+```{r}
+# code to show the distribution for calories from fat of mcdonald
+hist(mcdonalds$cal_fat)
+
+# code to show the distribution for calories from fat of dairy_queen
+hist(dairy_queen$cal_fat)
+
+```
+
+
+### Exercise 2
+
+Yes, Dairy queen follows a nearly normal distribution.
+while Mcdonalds is a rightly skewed distribution.
+
+```{r}
+# Insert code for Exercise 2 here
+dqmean <- mean(dairy_queen$cal_fat)
+dqsd   <- sd(dairy_queen$cal_fat)
+
+ggplot(data = dairy_queen, aes(x = cal_fat)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..)) +
+        stat_function(fun = dnorm, args = c(mean = dqmean, sd = dqsd), col = "tomato")
+
+```
+
+
+### Exercise 3
+
+The distribution of this plot appears to be more normal than the original data; it is primarily a diagonal line.
+
+```{r}
+# Insert code for Exercise 3 here
+ggplot(data = dairy_queen, aes(sample = cal_fat)) + 
+  geom_line(stat = "qq")
+
+sim_norm <- rnorm(n = nrow(dairy_queen), mean = dqmean, sd = dqsd)
+
+ggplot(data = dairy_queen, aes(sample = sim_norm)) + 
+  geom_line(stat = "qq")
+
+hist(sim_norm)
+hist(dairy_queen$cal_fat)
+qqnorm(sim_norm)
+```
+
+
+### Exercise 4
+
+The simulated plots appear to have a more evenly-distributed distribution than the data plot.It shows that the calories from fat data for dairy queen is generally a normally distribution.
+
+```{r}
+# Insert code for Exercise 4 here
+
+qqnormsim(sample = cal_fat, data = dairy_queen)
+```
+
+
+### Exercise 5
+
+Based on the simulations, the theoretical plots appear to be normally distributed, with a persistent diagonal line on the plots.
+
+```{r}
+# Insert code for Exercise 5 here
+
+mdmean <- mean(mcdonalds$cal_fat)
+mdsd   <- sd(mcdonalds$cal_fat)
+
+ggplot(data = mcdonalds, aes(x = cal_fat)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..)) +
+        stat_function(fun = dnorm, args = c(mean = mdmean, sd = mdsd), col = "green")
+
+sim_norm2 <- rnorm(n = nrow(mcdonalds), mean = mdmean, sd = mdsd)
+
+ggplot(data = mcdonalds, aes(sample = sim_norm2)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = cal_fat, data = mcdonalds)
+```
+
+
+### Exercise 6
+
+Insert any text here.
+
+```{r}
+# Insert code for Exercise 6 here
+```
+
+
+### Exercise 7
+
+Upon comparison, Arby's and Burger King's distribution were closest to normal, however Arby's distribution had the closest to normal for sodium.
+
+```{r}
+# Insert code for Exercise 7 here
+
+# creating a code for mean and standard deviation for sodium of Mcdonalds
+md_sod_mean <- mean(mcdonalds$sodium)
+md_sod_sd   <- sd(mcdonalds$sodium)
+
+# distribution for sodium of Mcdonalds
+hist(mcdonalds$sodium)
+ggplot(data = mcdonalds, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = md_sod_mean, sd = md_sod_sd), col = "chocolate4")
+
+sim_norm3 <- rnorm(n = nrow(mcdonalds), mean = md_sod_mean, sd = md_sod_sd)
+
+ggplot(data = mcdonalds, aes(sample = sim_norm3)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = mcdonalds)
+
+# creating a code for mean and standard deviation for sodium of Dairy Queen
+dq_sod_mean <- mean(dairy_queen$sodium)
+dq_sod_sd   <- sd(dairy_queen$sodium)
+
+# distribution for sodium of Dairy Queen
+hist(dairy_queen$sodium)
+ggplot(data = dairy_queen, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = dq_sod_mean, sd = dq_sod_sd), col = "cyan")
+
+sim_norm4 <- rnorm(n = nrow(dairy_queen), mean = dq_sod_mean, sd = dq_sod_sd)
+
+ggplot(data = dairy_queen, aes(sample = sim_norm4)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = dairy_queen)
+
+#code to filter Chick Fil A from the dataset
+chick_fil_a <- fastfood %>%
+  filter(restaurant == "Chick Fil-A")
+
+# creating a code for mean and standard deviation for sodium of Chick Fil A
+cfa_sod_mean <- mean(chick_fil_a$sodium)
+cfa_sod_sd   <- sd(chick_fil_a$sodium)
+
+# distribution for sodium of Chick Fil-A
+hist(chick_fil_a$sodium)
+ggplot(data = chick_fil_a, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = cfa_sod_mean, sd = cfa_sod_sd), col = "purple")
+
+sim_norm_cfa_sod <- rnorm(n = nrow(chick_fil_a), mean = cfa_sod_mean, sd = cfa_sod_sd)
+
+ggplot(data = chick_fil_a, aes(sample = sim_norm_cfa_sod)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = chick_fil_a)
+
+
+#code to filter Sonic from the dataset
+sonic <- fastfood %>%
+  filter(restaurant == "Sonic")
+
+# creating a code for mean and standard deviation for sodium of Sonic
+sonic_sod_mean <- mean(sonic$sodium)
+sonic_sod_sd   <- sd(sonic$sodium)
+
+# distribution for sodium of Sonic
+hist(sonic$sodium)
+ggplot(data = sonic, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = sonic_sod_mean, sd = sonic_sod_sd), col = "magenta")
+
+sim_norm_snc_sod <- rnorm(n = nrow(sonic), mean = sonic_sod_mean, sd = sonic_sod_sd)
+
+ggplot(data = sonic, aes(sample = sim_norm_snc_sod)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = sonic)
+
+#code to filter Arbys from the dataset
+arb <- fastfood %>%
+  filter(restaurant == "Arbys")
+
+# creating a code for mean and standard deviation for sodium of Arbys
+arb_sod_mean <- mean(arb$sodium)
+arb_sod_sd   <- sd(arb$sodium)
+
+# distribution for sodium of Arbys
+hist(arb$sodium)
+ggplot(data = arb, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = arb_sod_mean, sd = arb_sod_sd), col = "darkcyan")
+
+sim_norm_arb_sod <- rnorm(n = nrow(arb), mean = arb_sod_mean, sd = arb_sod_sd)
+
+ggplot(data = arb, aes(sample = sim_norm_arb_sod)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = arb)
+
+#code to filter Burger King from the dataset
+bgk <- fastfood %>%
+  filter(restaurant == "Burger King")
+
+# creating a code for mean and standard deviation for sodium of Burger King
+bgk_sod_mean <- mean(bgk$sodium)
+bgk_sod_sd   <- sd(bgk$sodium)
+
+# distribution for sodium of Burger King
+hist(bgk$sodium)
+ggplot(data = bgk, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = bgk_sod_mean, sd = bgk_sod_sd), col = "darkblue")
+
+sim_norm_bgk_sod <- rnorm(n = nrow(bgk), mean = bgk_sod_mean, sd = bgk_sod_sd)
+
+ggplot(data = bgk, aes(sample = sim_norm_bgk_sod)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = bgk)
+
+#code to filter Subway from the dataset
+swy <- fastfood %>%
+  filter(restaurant == "Subway")
+
+# creating a code for mean and standard deviation for sodium of Subway
+swy_sod_mean <- mean(swy$sodium)
+swy_sod_sd   <- sd(swy$sodium)
+
+# distribution for sodium of Subway
+hist(swy$sodium)
+ggplot(data = swy, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = swy_sod_mean, sd = swy_sod_sd), col = "coral")
+
+sim_norm_swy_sod <- rnorm(n = nrow(swy), mean = swy_sod_mean, sd = swy_sod_sd)
+
+ggplot(data = swy, aes(sample = sim_norm_swy_sod)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = swy)
+
+#code to filter Taco Bell from the dataset
+tcb <- fastfood %>%
+  filter(restaurant == "Taco Bell")
+
+# creating a code for mean and standard deviation for sodium of Taco Bell
+tcb_sod_mean <- mean(tcb$sodium)
+tcb_sod_sd   <- sd(tcb$sodium)
+
+# distribution for sodium of Taco Bell
+hist(tcb$sodium)
+ggplot(data = tcb, aes(x = sodium)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = tcb_sod_mean, sd = tcb_sod_sd), col = "rosybrown")
+
+sim_norm_tcb_sod <- rnorm(n = nrow(tcb), mean = tcb_sod_mean, sd = tcb_sod_sd)
+
+ggplot(data = tcb, aes(sample = sim_norm_tcb_sod)) + 
+  geom_line(stat = "qq")
+
+qqnormsim(sample = sodium, data = tcb)
+```
+
+### Exercise 8
+
+Step wise patterns occurs in distributions that are integers and discrete, these might be the case since these variables are integers and discrete.
+
+```{r}
+
+```
+
+### Exercise 9
+
+According to the plots, the distribution of total carbs for Arby's is nearly symmetrical.
+
+```{r}
+
+arb_carb_mean <- mean(arb$total_carb)
+arb_carb_sd   <- sd(arb$total_carb)
+
+ggplot(data = arb, aes(x = total_carb)) +
+        geom_blank() +
+        geom_histogram(aes(y = ..density..), bins = 18) +
+        stat_function(fun = dnorm, args = c(mean = arb_carb_mean, sd = arb_carb_sd), col = "violetred")
+
+sim_norm_arb_carb <- rnorm(n = nrow(arb), mean = arb_carb_mean, sd = arb_carb_sd)
+
+ggplot(data = arb, aes(sample = sim_norm_arb_carb)) + 
+  geom_line(stat = "qq")
+
+hist(arb$total_carb)
+
+```
+

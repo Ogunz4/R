@@ -1,0 +1,122 @@
+---
+title: "Lab 1: Intro to R"
+author: "Mamudat Jaji"
+date: "`r Sys.Date()`"
+output: pdf_document
+editor_options:
+  chunk_output_type: inline
+---
+arbuthnot
+install.packages("tidyverse")
+tinytex::install_tinytex()
+--- 
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+### Exercise 1
+
+```{r view-girls-counts}
+arbuthnot$girls
+```
+
+
+### Exercise 2
+
+Insert any text here.
+
+```{r trend-girls}
+# Insert code for Exercise 2 here
+```
+
+
+### Exercise 3
+
+Insert any text here.
+
+```{r plot-prop-boys-arbuthnot}
+# Insert code for Exercise 3 here
+```
+
+
+### Exercise 4
+
+The year 1940-2002. 63 observations of 3 variables. Year, boys and girls.
+
+```{r dim-present}
+# code to shows the data set
+present
+present <- present
+
+# these code shows the years, dimension and variable names in the data set
+present$year
+
+dim(present)
+
+names(present)
+```
+
+
+### Exercise 5
+
+Upon comparison,only the variable names are similar, the dimension and year are on a different scale.
+
+```{r count-compare}
+# these code shows the year range in present and arbuthnot data set
+range(present$year)
+range(arbuthnot$year)
+
+# these code shows the dimension in present and arbuthnot data set
+dim(present)
+dim(arbuthnot)
+
+# these code shows the variable names in present and arbuthnot data set
+names(present)
+names(arbuthnot)
+```
+
+
+### Exercise 6
+
+Arburthnot's observation holds because the proportion of boys born overtime is greater than 0.5, while for girls it is less than 0.5.
+
+```{r plot-prop-boys-present}
+# This code adds the variable 'total' to present data set
+  present <- present %>%
+  mutate(total = boys + girls)
+  
+# This code shows the proportion of boys overtime and adds the variable to the data set
+  present <- present %>%
+  mutate(boy_ratio = boys / total)
+  
+# This code shows the plot the proportion of boys
+ggplot(data = present, aes(x= year, y = boy_ratio)) + geom_line()
+
+# This code shows the proportion of girls overtime and adds the variable to the data set
+present <- present %>%
+  mutate(girl_ratio = girls / total)
+  
+# This code shows the plot for the proportion of girls
+  ggplot(data = present, aes(x= year, y = girl_ratio)) + geom_line()
+  
+   present <- present %>%
+  mutate(more_boys = boys > girls)
+```
+
+
+### Exercise 7
+
+The year 1961 has the highest total number of births with 4268326.
+
+```{r find-max-total}
+# This code adds the variable total to the data set
+ present <- present %>%
+  mutate(total = boys + girls)
+
+# This code arranges the data set in descending order
+  present %>%
+  arrange(desc(total))
+  
+```
+

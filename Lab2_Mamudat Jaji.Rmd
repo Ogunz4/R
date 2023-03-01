@@ -1,0 +1,218 @@
+---
+title: "Lab 2: Intro to Data"
+author: "Mamudat Jaji"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r load-packages-overview-data, message=FALSE}
+library(tidyverse)
+library(openintro)
+data(nycflights)
+
+names(nycflights)
+
+?nycflights
+
+glimpse(nycflights)
+
+# Histogram: Departure Delay
+ggplot(data = nycflights, aes(x = dep_delay)) +
+  geom_histogram()
+
+# Changing bin width
+ggplot(data = nycflights, aes(x = dep_delay)) +
+  geom_histogram(binwidth = 15)
+
+ggplot(data = nycflights, aes(x = dep_delay)) +
+  geom_histogram(binwidth = 150)
+
+```
+
+### Exercise 1
+
+Look carefully at these three histograms. How do they compare? Are features revealed in one that are obscured in another?
+
+```{r departure-delay-lax}
+
+# Subsetting and creating a new dataset with flights which destination is LA
+lax_flights <- nycflights %>%
+  filter(dest == "LAX")
+
+# Histogram of departure delay for LA flights
+ggplot(data = lax_flights, aes(x = dep_delay)) +
+  geom_histogram()
+
+# Summarizing the departure delay variable
+lax_flights %>%
+  summarise(mean_dd   = mean(dep_delay), 
+            median_dd = median(dep_delay), 
+            n         = n())
+
+```
+
+
+### Exercise 2
+
+Create a new data frame that includes flights headed to SFO in February, and save this data frame as sfo_feb_flights. How many flights meet these criteria?
+
+There are 68 flights  headed to SFO in February.
+```{r sfo-feb-flights}
+
+# Subsetting flights to San Francisco in February
+sfo_feb_flights <- nycflights %>%
+  filter(dest == "SFO", month == 2)
+
+# Number of flights to SFO in February
+sfo_feb_flights %>%
+  summarise(n         = n())
+
+```
+
+
+### Exercise 3
+
+Describe the distribution of the arrival delays of these flights using a histogram and appropriate summary statistics. Hint: The summary statistics you use should depend on the shape of the distribution.
+
+The distribution is skewed to the right and more than half of the total number of flights arrived on time or earlier than scheduled.
+```{r dist-arrival}
+# Insert code for Exercise 3 here
+
+# Histogram of arrival delay for LA flights
+ggplot(data = sfo_feb_flights, aes(x = arr_delay)) +
+  geom_histogram()
+
+# Grouping by origin airport
+sfo_feb_flights %>%
+  group_by(origin) %>%
+  summarise(median_dd = median(arr_delay), iqr_dd = IQR(arr_delay), n_flights = n())
+
+# Summarizing the departure arrival variable
+sfo_feb_flights %>%
+  summarise(mean_dd   = mean(arr_delay), 
+            median_dd = median(arr_delay), 
+            n         = n())
+
+
+```
+
+
+### Exercise 4
+
+Calculate the median and interquartile range for arr_delays of flights in in the sfo_feb_flights data frame, grouped by carrier. Which carrier has the most variable arrival delays?
+
+United Air Lines inc. have the most variable for arrival delays.
+```{r desc-statistics-by-carrier}
+# Insert code for Exercise 4 here
+
+# Grouping by carrier
+sfo_feb_flights %>%
+  group_by(carrier) %>%
+  summarise(median_ad = median(arr_delay), iqr_ad = IQR(arr_delay), n_flights = n())
+
+
+```
+
+
+### Exercise 5
+
+Suppose you really dislike departure delays and you want to schedule your travel in a month that minimizes your potential departure delay leaving NYC. One option is to choose the month with the lowest mean departure delay. Another option is to choose the month with the lowest median departure delay. What are the pros and cons of these two choices?
+
+The pros of using the mean is that it gives us the true figure for the average, while the con for the median is that it is obscure as there are two months that shares the same median for departure delay.
+
+```{r}
+# Insert code for Exercise 5 here
+
+# Mean departure delays by month
+
+nycflights %>%
+  group_by(month) %>%
+  summarise(mean_dd = mean(dep_delay)) %>%
+  arrange(desc(mean_dd))
+
+# Median Departure Delays by Month
+nycflights %>%
+  group_by(month) %>%
+  summarise(median_dd = median(dep_delay)) %>%
+  arrange(desc(median_dd))
+
+```
+
+
+### Exercise 6
+
+If you were selecting an airport simply based on on time departure percentage, which NYC airport would you choose to fly out of?
+
+I would choose to fly out from LGA because it has the highest number of on time departure rate with 72.8% as opposed to JFK and EWR with 69.4% and 63.7% respectively.
+
+```{r}
+# Insert code for Exercise 6 here
+
+# Type of Departure 
+nycflights <- nycflights %>%
+  mutate(dep_type = ifelse(dep_delay < 5, "on time", "delayed"))
+
+# On time rate by airport
+nycflights %>%
+  group_by(origin) %>%
+  summarise(ot_dep_rate = sum(dep_type == "on time") / n()) %>%
+  arrange(desc(ot_dep_rate))
+
+ggplot(data = nycflights, aes(x = origin, fill = dep_type)) + geom_bar()
+
+
+```
+
+
+### Exercise 7
+
+Mutate the data frame so that it includes a new variable that contains the average speed, avg_speed traveled by the plane for each flight (in mph). Hint: Average speed can be calculated as distance divided by number of hours of travel, and note that air_time is given in minutes.
+
+To find the average speed, distance was divided by air time, but air time was converted to hours.
+
+```{r}
+# Insert code for Exercise 7 here
+
+# code to create a new variable for air time in hours
+nycflights <- nycflights %>%
+  mutate(air_time_hours = air_time/60)
+# code to create a new variable for average speed 
+nycflights <- nycflights %>%
+  mutate(avg_speed = distance / air_time_hours)
+
+```
+
+### Exercise 8
+
+Make a scatterplot of avg_speed vs. distance. Describe the relationship between average speed and distance. Hint: Use geom_point().
+
+There is a general positive correlation between distance and average speed.
+It is skewed to the right.
+
+```{r}
+# Insert code for Exercise 8 here
+
+# scatter plot
+ggplot(nycflights, aes(x = distance, y = avg_speed)) +
+  geom_point()
+```
+
+### Exercise 9
+
+Replicate the following plot. Hint: The data frame plotted only contains flights from American Airlines, Delta Airlines, and United Airlines, and the points are colored by carrier. Once you replicate the plot, determine (roughly) what the cutoff point is for departure delays where you can still expect to get to your destination on time.
+
+The cutoff point for departure delays can roughly be placed at 70 mins.
+
+```{r}
+# Insert code for Exercise 9 here
+
+# Subsetting and creating a new dataset for AA, DL and UA carrier
+extracted_carrier <- nycflights %>%
+filter(carrier == 'AA'|carrier =='DL'| carrier =='UA') 
+
+# code for create the scatter plot
+ggplot(data = extracted_carrier, aes(x = dep_delay, y = arr_delay, colour=carrier)) + geom_point()
+
+
+```
+
