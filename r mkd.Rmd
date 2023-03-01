@@ -1,0 +1,289 @@
+---
+title: "Lab 7: Intro to Linear Regression"
+author: "Obadiah Ogungbe"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(statsr)
+library(broom)
+```
+
+## Getting Started
+
+### Exercise 1
+
+What are the dimensions of the dataset? What does each row represent?
+
+```{r dim-dataset}
+
+hfi <- hfi
+dim(hfi)
+
+?hfi
+
+```
+
+
+### Exercise 2
+
+The dataset spans a lot of years, but we are only interested in data from year 2016. Filter the data hfi data frame for year 2016, select the six variables, and assign the result to a data frame named hfi_2016.
+
+```{r subsetting}
+# Insert code for Exercise 2 here
+
+hfi_2016 <- hfi %>%
+  filter(year==2016)
+
+```
+
+
+### Exercise 3
+
+What type of plot would you use to display the relationship between the personal freedom score, pf_score, and pf_expression_control? Plot this relationship using the variable pf_expression_control as the predictor. Does the relationship look linear? If you knew a country’s pf_expression_control, or its score out of 10, with 0 being the most, of political pressures and controls on media content, would you be comfortable using a linear model to predict the personal freedom score?
+
+```{r rel-pf-expcontrol-score}
+# Insert code for Exercise 3 here
+
+ggplot(hfi_2016, aes(x=pf_expression_control, y=pf_score)) +
+  geom_point() + # Show dots
+  geom_text(
+    label=hfi_2016$ISO_code, 
+    nudge_x = 0.15, nudge_y = 0.15, 
+    check_overlap = T,
+    size = 2
+  )
+
+hfi_2016 %>%
+  summarise(cor(pf_expression_control, pf_score))
+
+```
+## Sum of Square Residuals
+
+### Exercise 4
+
+Looking at your plot from the previous exercise, describe the relationship between these two variables. Make sure to discuss the form, direction, and strength of the relationship as well as any unusual observations.
+
+```{r relationship-pf-score-expcontrol}
+# Insert code for Exercise 4 here
+```
+
+
+### Exercise 5
+
+Using plot_ss, choose a line that does a good job of minimizing the sum of squares. Run the function several times. What was the smallest sum of squares that you got? How does it compare to your neighbors?
+
+```{r sum-squared-residuals}
+# Insert code for Exercise 5 here
+
+plot_ss(x = pf_expression_control, y = pf_score, data = hfi_2016)
+
+plot_ss(x = pf_expression_control, y = pf_score, data = hfi_2016, showSquares = TRUE)
+
+```
+
+## The linear model
+
+It is rather cumbersome to try to get the correct least squares line, i.e. the line that minimizes the sum of squared residuals, through trial and error. Instead, you can use the lm function in R to fit the linear model (a.k.a. regression line).
+
+```{r linear-model}
+
+# Construct a linear model using pf_expression_control as the IV and pf_score as DV
+m1 <- lm(pf_score ~ pf_expression_control, data = hfi_2016)
+
+# Look at the linear model results
+tidy(m1)
+
+# More results
+glance(m1)
+
+
+```
+
+
+### Exercise 6
+
+Fit a new model that uses pf_expression_control to predict hf_score, or the total human freedom score. Using the estimates from the R output, write the equation of the regression line. What does the slope tell us in the context of the relationship between human freedom and the amount of political pressure on media content?
+
+```{r linear-model-2}
+# Insert code for Exercise 6 here
+
+# Construct a linear model using pf_expression_control as the IV and pf_score as DV
+m2 <- lm(hf_score ~ pf_expression_control, data = hfi_2016)
+
+# Look at the linear model results
+tidy (m2)
+
+# More results
+glance(m2)
+
+
+```
+
+## Prediction and prediction errors
+
+Let’s create a scatterplot with the least squares line for $$m1$$ laid on top.
+
+```{r prediction-errors}
+
+ggplot(data = hfi_2016, aes(x = pf_expression_control, y = pf_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+```
+
+### Exercise 7
+
+If someone saw the least squares regression line and not the actual data, how would they predict a country’s personal freedom school for one with a 3 rating for pf_expression_control? Is this an overestimate or an underestimate, and by how much? In other words, what is the residual for this prediction?
+
+```{r find-max-total}
+# Insert code for Exercise 7 here
+```
+
+## Model Diagnostics
+
+To assess whether the linear model is reliable, we need to check for (1) linearity, (2) nearly normal residuals, and (3) constant variability.
+
+In order to do these checks we need access to the fitted (predicted) values and the residuals. We can use the augment() function to calculate these.
+
+```{r linear-prediction}
+
+m1_aug <- augment(m1)
+
+```
+
+
+### 1. Linearity
+
+You already checked if the relationship between pf_score and pf_expression_control is linear using a scatterplot. We should also verify this condition with a plot of the residuals vs. fitted (predicted) values.
+
+```{r diagnostics-linearity}
+
+
+
+```
+### Exercise 8
+
+Is there any apparent pattern in the residuals plot? What does this indicate about the linearity of the relationship between the two variables?
+
+### Nearly Normal Residuals
+
+To check this condition, we can look at a histogram of the residuals.
+
+```{r diagnostics-nearly-normal-residuals}
+
+ggplot(data = m1_aug, aes(x = .resid)) +
+  geom_histogram(binwidth = 0.25) +
+  xlab("Residuals")
+
+```
+
+### Exercise 9
+
+Based on the histogram, does the nearly normal residuals condition appear to be violated? Why or why not?
+
+### Constant Variability
+
+### Exercise 10
+
+Based on the residuals vs. fitted plot, does the constant variability condition appear to be violated? Why or why not?
+
+```{r diagnostics-const-variability}
+
+ggplot(data = m1_aug, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  xlab("Fitted values") +
+  ylab("Residuals")
+
+```
+
+
+
+### More Practise 1
+
+Choose another freedom variable and a variable you think would strongly correlate with it. Produce a scatterplot of the two variables and fit a linear model. At a glance, does there seem to be a linear relationship? 
+
+
+
+```{r diagnostics-const-variability1}
+
+#At a glance, there seem to be a linear, positive relationship.
+
+k1 <- lm(pf_score ~ pf_expression_influence, data = hfi_2016)
+summary(k1)
+
+# Look at the linear model results
+tidy(k1)
+
+glance(k1)
+
+
+ggplot(data = hfi_2016, aes(x = pf_expression_influence, y = pf_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+### More Practise 2
+
+How does this relationship compare to the relationship between pf_score and pf_expression_control? Use the R2 values from the two model summaries to compare. Does your independent variable seem to predict pf_score better? Why or why not?
+
+###the relationship is to be positive, linear and upward trend just like the pf_expression_control. using R square to compare they both have a similar R square of 0.714 and 0.669 respectively. My independent variable does not seem to predict my dependent one better as my R Square value is less than pf_expression_control and pf_score.
+
+```{r diagnostics-const-variability2}
+# More results
+glance(m1)
+
+glance(k1)
+
+
+
+```
+
+### More Practise 3
+
+Pick another pair of variables of interest and visualise the relationship between them. Do you find the relationship surprising or is it what you expected. Discuss why you were interested in these variables and why you were/were not surprised by the relationship you observed.
+
+
+
+i can deduce that it is a nearly normal distribution, meaning it meets all the conditions of Linearity, Near Normality and meets constant variability. 
+
+
+```{r diagnostics-const-variability3}
+#linear model
+ggplot(data = hfi_2016, aes(x = pf_expression_influence, y = pf_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+k1_aug <- augment(k1) 
+
+#Nearly normal residuals
+ggplot(data = k1_aug, aes(x = .resid)) +
+  geom_histogram(binwidth = 0.25) +
+  xlab("Residuals")
+
+
+ggplot(data = k1_aug, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "violet") +
+  xlab("Fitted values") +
+  ylab("Residuals")
+
+
+
+
+```
+
+
+### More Practise 4
+
+Check the model diagnostics using appropriate visualisations and evaluate if the model conditions have been met.
+
+```{r diagnostics-const-variability4}
+m3 <- lm(hf_score ~ pf_expression_influence, data = hfi)
+summary(m3)
+
+```
