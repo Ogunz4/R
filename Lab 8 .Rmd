@@ -1,6 +1,6 @@
 ---
 title: "Lab 9: Multivariate Regression"
-author: "Mamudat Jaji"
+author: "Olorunleke"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
